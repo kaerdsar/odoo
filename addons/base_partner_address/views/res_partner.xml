@@ -2,7 +2,6 @@
 <openerp>
   <data>
 
-    <!-- Inherit partner form -->
     <record id="view_partner_form" model="ir.ui.view">
       <field name="name">res.partner.form</field>
       <field name="model">res.partner</field>
@@ -76,7 +75,7 @@
                   <tree editable="top" nolabel="1" class="contact_detail_table">
                     <field name="type" string="Addresses"/>
                     <field name="address" widget="address" string=""/>
-                    <field name="preferred" widget="radio_tree" string=""/>
+                    <field name="preferred" string=""/>
                   </tree>
                 </field>
               </group>
@@ -85,7 +84,7 @@
                   <tree editable="top" nolabel="1" class="contact_detail_table">
                     <field name="type" nolabel="1"  string="Email Addresses" style="width: 1%% !important" />
                     <field name="name" widget="email" nolabel="1" string=""/>
-                    <field name="preferred" widget="radio_tree" string=""/>
+                    <field name="preferred" string=""/>
                   </tree>
                 </field>
               </group>
@@ -228,7 +227,6 @@
       </field>
     </record>
 
-    <!-- Updated person filter, added address filter and added search fields zip and comment in partner search -->
     <record id="view_res_partner_filter" model="ir.ui.view">
       <field name="name">res.partner.select</field>
       <field name="model">res.partner</field>
@@ -246,7 +244,6 @@
       </field>
     </record>
 
-    <!-- Added fields zip, city and ref after field email in partner tree -->
     <record id="view_partner_tree" model="ir.ui.view">
       <field name="name">res.partner.tree</field>
       <field name="model">res.partner</field>
@@ -257,55 +254,6 @@
           <field name="city"/>
           <field name="ref"/>
         </field>
-      </field>
-    </record>
-
-    <!-- Removed no needed columns -->
-    <record id="view_res_partner_filter_assign_tree" model="ir.ui.view">
-      <field name="name">res.partner.geo.inherit.tree</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="crm_partner_assign.view_res_partner_filter_assign_tree"/>
-      <field name="arch" type="xml">
-        <field name="date_review_next" position="replace">
-          <field name="date_review_next" invisible="1"/>
-        </field>
-        <field name="grade_id" position="replace">
-          <field name="grade_id" invisible="1"/>
-        </field>
-        <field name="activation" position="replace">
-          <field name="activation" invisible="1"/>
-        </field>
-      </field>
-    </record>
-
-    <!-- Updated related sale order link from action to object call to handle related sale orders for contact partners in kanban view, background information: 
-         it is needed because of our partner address updates -->
-    <record id="crm_lead_partner_kanban_view" model="ir.ui.view">
-      <field name="name">res.partner.kanban.saleorder.inherit</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="sale.crm_lead_partner_kanban_view"/>
-      <field name="priority" eval="20"/>
-      <field name="arch" type="xml">
-        <xpath expr="//a[@name='%(sale.act_res_partner_2_sale_order)d']" position="attributes">
-          <attribute name="name">open_sale_orders</attribute>
-          <attribute name="type">object</attribute>
-        </xpath>
-      </field>
-    </record>
-
-    <!-- Updated related sale order link from action to object call to handle related sale orders for contact partners in form view, background information: 
-         it is needed because of our partner address updates -->
-    <record id="res_partner_view_buttons" model="ir.ui.view">
-      <field name="name">res.partner.view.buttons</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="sale.res_partner_view_buttons"/>
-      <field name="priority" eval="20"/>
-      <field name="groups_id" eval="[(4, ref('base.group_sale_salesman'))]"/>
-      <field name="arch" type="xml">
-        <xpath expr="//button[@name='%(sale.act_res_partner_2_sale_order)d']" position="attributes">
-          <attribute name="name">open_sale_orders</attribute>
-          <attribute name="type">object</attribute>
-        </xpath>
       </field>
     </record>
 

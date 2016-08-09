@@ -129,22 +129,4 @@ openerp.lr_partner_address = function (instance) {
         }
     });
 
-    instance.web.form.RadioTree.include({
-        clean_radio_in_records: function() {
-            // Save current values
-            var street = this.view.$el.find('input[name="street"]').val(),
-                street2 = this.view.$el.find('input[name="street2"]').val(),
-                zip = this.view.$el.find('input[name="zip"]').val(),
-                city = this.view.$el.find('input[name="city"]').val();
-
-            this._super();
-
-            // Restore current values
-            this.view.$el.find('input[name="street"]').val(street);
-            this.view.$el.find('input[name="street2"]').val(street2);
-            this.view.$el.find('input[name="zip"]').val(zip);
-            this.view.$el.find('input[name="city"]').val(city);
-        }
-    });
-
 };

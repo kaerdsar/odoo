@@ -50,12 +50,6 @@ class ResPartnerAddress(models.Model):
                                store=True)
     preferred = fields.Boolean('Preferred')
 
-    # these fields are only for temporary usage because they will be extracted
-    # and migrated later in LROERP-2737
-    phone = fields.Char('Phone')
-    fax = fields.Char('Fax')
-    mobile = fields.Char('Mobile')
-
     @api.depends('street', 'street2', 'zip', 'city', 'country_id')
     def _get_json_address(self):
         for rec in self:

@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import fields, models
+from openerp import fields, models, api
 
 EMAIL_ADDRESS_TYPES = [
     ('private', 'Private'),

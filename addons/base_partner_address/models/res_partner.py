@@ -45,8 +45,8 @@ class ResPartner(models.Model):
     child_address_ids = fields.One2many(
         'res.partner.address', 'partner_id', 'Addresses')
     # force "active_test" domain to bypass _search() override
-    preferred_address = fields.Many2one('res.partner.address',
-                                        'Preferred Address')
+
+    preferred_address = fields.Many2one('res.partner.address', 'Preferred Address')
     preferred_email = fields.Many2one('res.partner.email', 'Preferred Email')
     partner_email_ids = fields.One2many('res.partner.email', 'partner_id',
                                         'Email Addresses')
@@ -322,6 +322,3 @@ class ResPartner(models.Model):
                 arg[0] = 'partner_phone_ids.name'
         return super(ResPartner, self).search(cr, user, args, offset=offset, limit=limit,
                                               order=order, context=context, count=count)
-
-
-

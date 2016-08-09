@@ -26,13 +26,13 @@
     'author': "bloopark systems GmbH & Co. KG",
     'website': "http://www.bloopark.de",
     'depends': [
-        'base'
+        'base', 'contacts'
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/backend/assets.xml',
-        'views/backend/res_partner_address.xml',
-        'views/backend/res_partner.xml',
+        'views/assets.xml',
+        'views/res_partner_address.xml',
+        'views/res_partner.xml',
     ],
     'qweb': [
         'static/src/xml/address.xml'
