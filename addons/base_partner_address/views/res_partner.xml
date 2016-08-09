@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <!-- Inherit partner form -->
+    <record id="view_partner_form" model="ir.ui.view">
+      <field name="name">res.partner.form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+
+        <div name="buttons" position="replace" />
+        <field name="image" position="before" >
+          <div class="oe_button_nav oe_button_box flex menu" name="buttons"> </div>
+        </field>
+
+        <field name="category_id" position="attributes">
+          <attribute name="options">{'no_create': True}</attribute>
+        </field>
+        <field name="parent_id" position="replace">
+          <field name="parent_id" placeholder="Related Company or Partner" context="{'default_is_company': True, 'default_supplier': supplier}"
+                 on_change="onchange_address(use_parent_address, parent_id)"/>
+        </field>
+        <field name="zip" position="replace"/>
+        <field name="city" position="before">
+          <field name="zip" placeholder="ZIP" style="width: 20%%" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+        </field>
+        <!-- hide address fields if type is a contact and show only address fileds if type is a address -->
+        <xpath expr="/form/sheet/group" position="replace">
+          <group>
+            <group>
+              <!-- only for contacts -->
+              <field name="gender_id" options='{"no_open": True, "no_create": True}'
+                     attrs="{'required': [('is_company','=', False)], 'invisible': [('is_company', '=', True)]}"/>
+              <field name="title" options='{"no_open": True}'
+                     attrs="{'invisible': [('is_company', '=', True)]}"/>
+              <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('is_company', '=', True)]}"/>
+              <!-- all other -->
+              <label for="street" string="Address" invisible="1"/>
+              <div invisible="1">
+                <div class="oe_edit_only">
+                  <field name="use_parent_address" class="oe_inline" on_change="onchange_address(use_parent_address, parent_id)"
+                         attrs="{'invisible': ['|', ('is_company', '=', True),('parent_id', '=', False)]}"/>
+                  <label for="use_parent_address" attrs="{'invisible': ['|', ('is_company', '=', True), ('parent_id', '=', False)]}"/>
+                </div>
+                <button name="open_parent" type="object" string="(edit company address)" class="oe_link oe_edit_only" invisible="1"/>
+                <field name="street" placeholder="Street..." attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                <field name="street2" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                <div class="address_format">
+                  <field name="city" placeholder="City" style="width: 40%%" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                  <field name="state_id" class="oe_no_button" placeholder="State" style="width: 37%%" options='{"no_open": True}' on_change="onchange_state(state_id)"
+                         attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                  <field name="zip" placeholder="ZIP" style="width: 20%%" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                </div>
+                <field name="country_id" placeholder="Country" class="oe_no_button" options='{"no_open": True, "no_create": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+              </div>
+              <!-- companies -->
+              <field name="website" widget="url" placeholder="e.g. www.odoo.com"/>
+            </group>
+            <group>
+              <field name="phone" placeholder="e.g. +32.81.81.37.00" invisible="1"/>
+              <field name="mobile" invisible="1"/>
+              <field name="fax" invisible="1"/>
+              <field name="user_ids" invisible="1"/>
+              <field name="preferred_address" readonly="1"/>
+              <field name="email" string="Preferred Email" widget="email" readonly="1"/>
+            </group>
+          </group>
+        </xpath>
+        <page string="Contacts" position="replace">
+
+          <page string="Contact Information" autofocus="autofocus" version="7.0">
+            <group col="3">
+              <group col="1">
+                <field name="child_address_ids" mode="tree" nolabel="1" class="address_tree">
+                  <tree editable="top" nolabel="1" class="contact_detail_table">
+                    <field name="type" string="Addresses"/>
+                    <field name="address" widget="address" string=""/>
+                    <field name="preferred" widget="radio_tree" string=""/>
+                  </tree>
+                </field>
+              </group>
+              <group col="1">
+                <field name="partner_email_ids" mode="tree" nolabel="1"  class="email_tree">
+                  <tree editable="top" nolabel="1" class="contact_detail_table">
+                    <field name="type" nolabel="1"  string="Email Addresses" style="width: 1%% !important" />
+                    <field name="name" widget="email" nolabel="1" string=""/>
+                    <field name="preferred" widget="radio_tree" string=""/>
+                  </tree>
+                </field>
+              </group>
+              <group col="1">
+                <field name="partner_phone_ids" mode="tree" nolabel="1"  class="phone_tree">
+                  <tree editable="top" nolabel="1" class="contact_detail_table">
+                    <field name="type" nolabel="1" string="Phones" style="width: 1%% !important"/>
+                    <field name="name" nolabel="1" string=""/>
+                  </tree>
+                </field>
+              </group>
+            </group>
+          </page>
+
+          <page string="Contacts" autofocus="autofocus" attrs="{'invisible': [('is_company','=', False)]}" version="7.0">
+            <field name="child_ids" mode="kanban"
+                   context="{'is_company': is_company, 'default_parent_id': active_id, 'default_name': name, 'default_street': street, 'default_street2': street2, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_supplier': supplier}">
+              <kanban>
+                <field name="color"/>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="email"/>
+                <field name="parent_id"/>
+                <field name="is_company"/>
+                <field name="function"/>
+                <field name="phone"/>
+                <field name="street"/>
+                <field name="street2"/>
+                <field name="zip"/>
+                <field name="city"/>
+                <field name="country_id"/>
+                <field name="mobile"/>
+                <field name="fax"/>
+                <field name="state_id"/>
+                <field name="has_image"/>
+                <templates>
+                  <t t-name="kanban-box">
+                    <t t-set="color" t-value="kanban_color(record.color.raw_value)"/>
+                    <div t-att-class="color + (record.title.raw_value == 1 ? ' oe_kanban_color_alert' : '')" style="position: relative">
+                      <a t-if="! read_only_mode" type="delete" style="position: absolute; right: 0; padding: 4px; diplay: inline-block">X</a>
+                      <div class="oe_module_vignette">
+                        <a type="open">
+                          <t t-if="record.has_image.raw_value === true">
+                            <img t-att-src="kanban_image('res.partner', 'image', record.id.value, {'preview_image': 'image_small'})" class="oe_avatar oe_kanban_avatar_smallbox"/>
+                          </t>
+                          <t t-if="record.image and record.image.raw_value !== false">
+                            <img t-att-src="'data:image/png;base64,'+record.image.raw_value" class="oe_avatar oe_kanban_avatar_smallbox"/>
+                          </t>
+                          <t t-if="record.has_image.raw_value === false and (!record.image or record.image.raw_value === false)">
+                            <t t-if="record.is_company.raw_value === true">
+                              <img t-att-src='_s + "/base/static/src/img/company_image.png"' class="oe_kanban_image oe_kanban_avatar_smallbox"/>
+                            </t>
+                            <t t-if="record.is_company.raw_value === false">
+                              <img t-att-src='_s + "/base/static/src/img/avatar.png"' class="oe_kanban_image oe_kanban_avatar_smallbox"/>
+                            </t>
+                          </t>
+                        </a>
+                        <div class="oe_module_desc">
+                          <div class="oe_kanban_box_content oe_kanban_color_bglight oe_kanban_color_border">
+                            <table class="oe_kanban_table">
+                              <tr>
+                                <td class="oe_kanban_title1" align="left" valign="middle">
+                                  <h4>
+                                    <a type="open">
+                                      <field name="name"/>
+                                    </a>
+                                  </h4>
+                                  <i>
+                                    <div t-if="record.function.raw_value">
+                                      <field name="function"/>
+                                    </div>
+                                  </i>
+                                  <div>
+                                    <a t-if="record.email.raw_value" title="Mail" t-att-href="'mailto:'+record.email.value">
+                                      <field name="email"/>
+                                    </a>
+                                  </div>
+                                  <!-- <div t-if="record.kanban_preferred_phone.raw_value">
+                                    Phone:
+                                    <field name="kanban_preferred_phone"/>
+                                  </div>
+                                  <div t-if="record.kanban_preferred_mobile.raw_value">
+                                    Mobile:
+                                    <field name="kanban_preferred_mobile"/>
+                                  </div> -->
+                                  <!--quick fix till version 9 (ticket LROERP-735)-->
+                                  <!--<div t-if="record.category_id.raw_value">-->
+                                  <!--<field name="category_id" />-->
+                                  <!--</div>-->
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </t>
+                </templates>
+              </kanban>
+            </field>
+          </page>
+
+        </page>
+      </field>
+    </record>
+
+    <record id="view_partner_simple_form" model="ir.ui.view">
+      <field name="name">res.partner.simplified.form</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_simple_form"/>
+      <field name="arch" type="xml">
+        <field name="email" position="attributes">
+          <attribute name="required">0</attribute>
+          <attribute name="attrs">{'required': [('is_company','=', True)], 'readonly': [('is_company', '=', False)]}</attribute>
+        </field>
+        <field name="phone" position="attributes">
+          <attribute name="attrs">{'invisible': [('is_company','=', False)]}</attribute>
+        </field>
+        <field name="mobile" position="attributes">
+          <attribute name="attrs">{'invisible': [('is_company','=', False)]}</attribute>
+        </field>
+        <xpath expr="//group[last()]" position="after">
+          <notebook>
+            <page string="Addresses" attrs="{'invisible': [('is_company','=', True)]}" version="7.0">
+              <group col="4">
+                <group col="2">
+                  <field name="partner_email_ids" mode="tree" nolabel="1">
+                    <tree editable="top">
+                      <field name="type"/>
+                      <field name="name" widget="email"/>
+                      <field name="preferred"/>
+                    </tree>
+                  </field>
+                </group>
+                <group col="2"/>
+              </group>
+            </page>
+          </notebook>
+        </xpath>
+      </field>
+    </record>
+
+    <!-- Updated person filter, added address filter and added search fields zip and comment in partner search -->
+    <record id="view_res_partner_filter" model="ir.ui.view">
+      <field name="name">res.partner.select</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_res_partner_filter"/>
+      <field name="arch" type="xml">
+        <filter name="type_person" position="replace">
+          <filter string="Persons" name="type_person" domain="[('is_company', '=', 0)]"/>
+        </filter>
+        <field name="name" position="after">
+          <field name="zip" string="ZIP" filter_domain="[('preferred_address.zip','=like', self + '%')]"/>
+        </field>
+        <field name="category_id" position="before">
+          <field name="comment" string="Internal Notices" filter_domain="[('comment','ilike', self)]"/>
+        </field>
+      </field>
+    </record>
+
+    <!-- Added fields zip, city and ref after field email in partner tree -->
+    <record id="view_partner_tree" model="ir.ui.view">
+      <field name="name">res.partner.tree</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_tree"/>
+      <field name="arch" type="xml">
+        <field name="email" position="after">
+          <field name="zip"/>
+          <field name="city"/>
+          <field name="ref"/>
+        </field>
+      </field>
+    </record>
+
+    <!-- Removed no needed columns -->
+    <record id="view_res_partner_filter_assign_tree" model="ir.ui.view">
+      <field name="name">res.partner.geo.inherit.tree</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="crm_partner_assign.view_res_partner_filter_assign_tree"/>
+      <field name="arch" type="xml">
+        <field name="date_review_next" position="replace">
+          <field name="date_review_next" invisible="1"/>
+        </field>
+        <field name="grade_id" position="replace">
+          <field name="grade_id" invisible="1"/>
+        </field>
+        <field name="activation" position="replace">
+          <field name="activation" invisible="1"/>
+        </field>
+      </field>
+    </record>
+
+    <!-- Updated related sale order link from action to object call to handle related sale orders for contact partners in kanban view, background information: 
+         it is needed because of our partner address updates -->
+    <record id="crm_lead_partner_kanban_view" model="ir.ui.view">
+      <field name="name">res.partner.kanban.saleorder.inherit</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="sale.crm_lead_partner_kanban_view"/>
+      <field name="priority" eval="20"/>
+      <field name="arch" type="xml">
+        <xpath expr="//a[@name='%(sale.act_res_partner_2_sale_order)d']" position="attributes">
+          <attribute name="name">open_sale_orders</attribute>
+          <attribute name="type">object</attribute>
+        </xpath>
+      </field>
+    </record>
+
+    <!-- Updated related sale order link from action to object call to handle related sale orders for contact partners in form view, background information: 
+         it is needed because of our partner address updates -->
+    <record id="res_partner_view_buttons" model="ir.ui.view">
+      <field name="name">res.partner.view.buttons</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="sale.res_partner_view_buttons"/>
+      <field name="priority" eval="20"/>
+      <field name="groups_id" eval="[(4, ref('base.group_sale_salesman'))]"/>
+      <field name="arch" type="xml">
+        <xpath expr="//button[@name='%(sale.act_res_partner_2_sale_order)d']" position="attributes">
+          <attribute name="name">open_sale_orders</attribute>
+          <attribute name="type">object</attribute>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>

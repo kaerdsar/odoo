@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_partner_address_tree" model="ir.ui.view">
+      <field name="name">res.partner.address.tree</field>
+      <field name="model">res.partner.address</field>
+      <field name="arch" type="xml">
+        <tree string="Addresses">
+          <field name="partner_id" invisible="1"/>
+          <field name="display_name"/>
+          <field name="street"/>
+          <field name="state_id"/>
+          <field name="zip"/>
+          <field name="city"/>
+          <field name="country_id"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_partner_address_form" model="ir.ui.view">
+      <field name="name">res.partner.address.form</field>
+      <field name="model">res.partner.address</field>
+      <field name="arch" type="xml">
+        <form string="Addresses">
+          <sheet>
+            <group>
+              <group col="2">
+                <field name="partner_id" placeholder="Partner"/>
+                <field name="type"/>
+                <field name="preferred"/>
+              </group>
+              <group>
+                <label for="street" string="Address"/>
+                <div>
+                  <div class="oe_edit_only">
+                    <field name="use_company_address" class="oe_inline" attrs="{'invisible': [('partner_id', '=', False)]}"/>
+                    <label for="use_company_address" attrs="{'invisible': [('partner_id', '=', False)]}"/>
+                  </div>
+                  <field name="street" placeholder="Street" attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                  <field name="street2" placeholder="Street2" attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                  <div class="address_format">
+                    <field name="city" placeholder="City" style="width: 40%" attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                    <field name="state_id" class="oe_no_button" placeholder="State" style="width: 35%" options="{&quot;no_open&quot;: True}"
+                      attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                    <field name="zip" placeholder="ZIP" style="width: 25%" attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                  </div>
+                  <field name="country_id" placeholder="Country" class="oe_no_button" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"
+                    attrs="{'readonly': [('use_company_address','=',True)]}"/>
+                </div>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_partner_address_filter" model="ir.ui.view">
+      <field name="name">res.partner.address.select</field>
+      <field name="model">res.partner.address</field>
+      <field name="arch" type="xml">
+        <search string="Search Addresses">
+          <field name="display_name" filter_domain="[('display_name','ilike',self)]"/>
+          <field name="street" filter_domain="[('street','ilike',self)]"/>
+          <field name="street2" filter_domain="[('street2','ilike',self)]"/>
+          <field name="zip" filter_domain="[('zip','ilike',self)]"/>
+          <field name="city" filter_domain="[('city','ilike',self)]"/>
+          <group expand="0" string="Group By">
+            <filter string="Country" context="{'group_by': 'country_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id="action_partner_address_form" model="ir.actions.act_window">
+      <field name="name">Addresses</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">res.partner.address</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+      <field name="search_view_id" ref="view_partner_address_filter"/>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_create">
+          Click to add a partner address in your address book.
+        </p>
+        <p>
+          Odoo helps you easily track all activities related to
+          a customer; discussions, history of business opportunities,
+          documents, etc.
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="menu_partner_address_form" parent="base.menu_config_address_book" action="action_partner_address_form" name="Addresses"/>
+
+  </data>
+</openerp>

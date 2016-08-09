@@ -1,0 +1,316 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* base_partner_address
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 9.0alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-25 08:33+0000\n"
+"PO-Revision-Date: 2016-02-25 08:33+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: base_partner_address
+#: model:ir.actions.act_window,help:base_partner_address.action_partner_address_form
+msgid "<p class=\"oe_view_nocontent_create\">\n"
+"          Click to add a partner address in your address book.\n"
+"        </p>\n"
+"        <p>\n"
+"          Odoo helps you easily track all activities related to\n"
+"          a customer; discussions, history of business opportunities,\n"
+"          documents, etc.\n"
+"        </p>\n"
+"      "
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+#: code:res.partner.address:0
+msgid "Address"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+#: view:res.partner:base_partner_address.view_partner_simple_form
+#: view:res.partner:base_partner_address.view_res_partner_filter
+#: field:res.partner,child_address_ids:0
+msgid "Contact Information"
+msgstr ""
+
+#. module: base_partner_address
+#: selection:res.partner.address,type:0
+#: selection:res.partner.email,type:0
+#: code:res.partner.address:0
+msgid "Business"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "City"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Contacts"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Country"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.email,name:0
+msgid "Email"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner,partner_email_ids:0
+msgid "Emails"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_res_partner_filter
+msgid "Internal Notices"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Is a Company?"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Mobile:"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Open address"
+msgstr ""
+
+#. module: base_partner_address
+#: selection:res.partner.address,type:0
+#: selection:res.partner.email,type:0
+#: selection:res.partner.phone,type:0
+msgid "Other"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_res_partner_filter
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "ZIP"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_res_partner_filter
+msgid "Persons"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Phone:"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,preferred:0
+#: field:res.partner.email,preferred:0
+msgid "Preferred"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+#: field:res.partner,preferred_email:0
+msgid "Preferred Email"
+msgstr ""
+
+#. module: base_partner_address
+#: selection:res.partner.address,type:0
+#: selection:res.partner.email,type:0
+#: code:res.partner.address:0
+msgid "Private"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Related Company or Partner"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "State"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Street..."
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Tags..."
+msgstr ""
+
+#. module: base_partner_address
+#: sql_constraint:res.partner.email:0
+msgid "The email must be unique in the system!"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.email,type:0
+#: field:res.partner.phone,type:0
+msgid "Type"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "e.g. +32.81.81.37.00"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "e.g. Sales Director"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "e.g. www.odoo.com"
+msgstr ""
+
+#. module: base_partner_address
+#: code:res.partner:0
+msgid "You cannot create a contact without an address."
+msgstr ""
+
+#. module: base_partner_address
+#: code:res.partner:0
+msgid "You have to tick exact one email address as preferred email address."
+msgstr ""
+
+#. module: base_partner_address
+#: model:ir.model,name:base_partner_address.model_res_partner
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+#: field:res.partner.address,partner_id:0
+#: field:res.partner.email,partner_id:0
+#: field:res.partner.phone,partner_id:0
+msgid "Partner"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,use_company_address:0
+msgid "Use Company Address"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,type:0
+msgid "Address Type"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,street:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+msgid "Street"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,street2:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+msgid "Street2"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,zip:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+msgid "Zip"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,city:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+msgid "City"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,state_id:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+msgid "State"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,country_id:0
+#: view:res.partner.address:base_partner_address.view_partner_address_filter
+msgid "Country"
+msgstr ""
+
+#. module: base_partner_address
+#: model:ir.actions.act_window,name:base_partner_address.action_partner_address_form
+#: model:ir.ui.menu,name:base_partner_address.menu_partner_address_form
+#: view:res.partner:base_partner_address.view_partner_form
+#: view:res.partner:base_partner_address.view_partner_simple_form
+#: field:res.partner,child_address_ids:0
+#: view:res.partner.address:base_partner_address.view_partner_address_form
+#: view:res.partner.address:base_partner_address.view_partner_address_tree
+msgid "Addresses"
+msgstr ""
+
+#. module: base_partner_address
+#: view:res.partner.address:base_partner_address.view_partner_address_filter
+msgid "Search Addresses"
+msgstr ""
+
+
+#. module: base_partner_address
+#: field:res.partner.phone,name:0
+msgid "Number"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,phone:0
+#: selection:res.partner.phone,type:0
+msgid "Phone"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,mobile:0
+#: selection:res.partner.phone,type:0
+msgid "Mobile"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner.address,fax:0
+#: selection:res.partner.phone,type:0
+msgid "Fax"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner,partner_phone_ids:0
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Phones"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner,partner_email_ids:0
+#: view:res.partner:base_partner_address.view_partner_form
+msgid "Email Addresses"
+msgstr ""
+
+#. module: base_partner_address
+#: code:res.partner:0
+msgid "Quotations and Sales"
+msgstr ""
+
+#. module: base_partner_address
+#: field:res.partner,preferred_address:0
+msgid "Preferred Address"
+msgstr ""
+
+#. module: base_partner_address
+#: code:res.partner:0
+msgid "You have to tick exact one address as preferred address."
+msgstr ""
