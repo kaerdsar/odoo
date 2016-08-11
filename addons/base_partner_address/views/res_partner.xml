@@ -41,15 +41,18 @@
             <group>
               <field name="partner_email_ids" mode="tree" nolabel="1" class="email_tree">
                 <tree editable="top" nolabel="1" class="partner_email_table">
-                  <field name="type" string="Email Addresses"/>
+                  <field name="type" string="Emails"/>
                   <field name="name" widget="email" string=""/>
                   <field name="preferred"/>
                 </tree>
               </field>
+            </group>
+            <group>
               <field name="partner_phone_ids" mode="tree" nolabel="1" class="phone_tree">
                 <tree editable="top" nolabel="1" class="partner_phone_table">
                   <field name="type" string="Phones"/>
                   <field name="name" string=""/>
+                  <field name="preferred"/>
                 </tree>
               </field>
             </group>
@@ -78,7 +81,7 @@
               <group>
                 <field name="partner_email_ids" mode="tree" nolabel="1">
                   <tree editable="top" nolabel="1" class="partner_email_table">
-                    <field name="type" string="Email Addresses"/>
+                    <field name="type" string="Emails"/>
                     <field name="name" widget="email" string=""/>
                     <field name="preferred"/>
                   </tree>

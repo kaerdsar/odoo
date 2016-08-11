@@ -29,11 +29,12 @@ PHONE_TYPES = [
 
 
 class ResPartnerPhone(models.Model):
-
     _name = 'res.partner.phone'
+    _inherit = ['res.partner.contact.info']
 
-    partner_id = fields.Many2one('res.partner', 'Partner', required=True,
-                                 ondelete='cascade', index=True)
+    name = fields.Char('Number', required=True)
     type = fields.Selection(PHONE_TYPES, 'Type',
     						default='mobile', required=True)
-    name = fields.Char('Number', required=True)
+    partner_id = fields.Many2one('res.partner', 'Partner', required=True,
+                                 ondelete='cascade', index=True)
+    preferred = fields.Boolean('Preferred')
