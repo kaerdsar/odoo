@@ -1,4 +1,4 @@
-openerp.lr_partner_address = function (instance) {
+openerp.base_partner_address = function (instance) {
 
     var QWeb = instance.web.qweb;
 

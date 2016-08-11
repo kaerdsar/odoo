@@ -42,14 +42,15 @@ class ResPartner(models.Model):
          ('address', 'Address')], 'Address Type',
         help="Used to select automatically the right address according to the"
              "context in sales and purchases documents.")
-    child_address_ids = fields.One2many(
-        'res.partner.address', 'partner_id', 'Addresses')
-    # force "active_test" domain to bypass _search() override
-
+    
     preferred_address = fields.Many2one('res.partner.address', 'Preferred Address')
+    partner_address_ids = fields.One2many('res.partner.address', 'partner_id',
+                                          'Addresses')
+    
     preferred_email = fields.Many2one('res.partner.email', 'Preferred Email')
     partner_email_ids = fields.One2many('res.partner.email', 'partner_id',
                                         'Email Addresses')
+    
     partner_phone_ids = fields.One2many('res.partner.phone', 'partner_id',
                                         'Phones')
 
@@ -59,7 +60,7 @@ class ResPartner(models.Model):
         rpa_obj = self.env['res.partner.address']
         # it is possible that self._uid is None, especially after a server
         # restart, we would get an error like "AccessError: ('No value found
-        # for res.partner(21,).child_address_ids', None)" without sudo()
+        # for res.partner(21,).partner_address_ids', None)" without sudo()
         address = rpa_obj.sudo().search(
             [('partner_id', '=', self.id), ('type', '=', addr_type)],
             order='id ASC', limit=1)
@@ -82,7 +83,7 @@ class ResPartner(models.Model):
             domain.append(('type', '=', phone_type))
         # it is possible that self._uid is None, especially after a server
         # restart, we would get an error like "AccessError: ('No value found
-        # for res.partner(21,).child_address_ids', None)" without sudo()
+        # for res.partner(21,).partner_address_ids', None)" without sudo()
         phone = self.env['res.partner.phone'].sudo().search(
             domain, order='id ASC', limit=1)
 
@@ -138,11 +139,14 @@ class ResPartner(models.Model):
 
     @api.model
     def unlink(self):
-        """Remove all addresses if partner contact will be removed."""
+        """Remove all contact information if partner will be removed."""
         for partner in self:
-            if partner.child_address_ids:
-                partner.child_address_ids.unlink()
-
+            if partner.partner_address_ids:
+                partner.partner_address_ids.unlink()
+            if partner.partner_email_ids:
+                partner.partner_email_ids.unlink()
+            if partner.partner_phone_ids:
+                partner.partner_phone_ids.unlink()
         return super(ResPartner, self).unlink()
 
     @api.multi
@@ -215,14 +219,14 @@ class ResPartner(models.Model):
 
         return ''
 
-    @api.constrains('child_address_ids')
+    @api.constrains('partner_address_ids')
     def _check_partner_address(self):
         """Check if partner contact has at least one address.
 
         In addition check if partner has exactly one address ticked as
         preferred address.
         """
-        if not self.child_address_ids:
+        if not self.partner_address_ids:
             raise ValidationError(
                 _('You cannot create a contact without an address.'))
 

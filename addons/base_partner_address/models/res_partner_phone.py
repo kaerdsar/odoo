@@ -34,5 +34,6 @@ class ResPartnerPhone(models.Model):
 
     partner_id = fields.Many2one('res.partner', 'Partner', required=True,
                                  ondelete='cascade', index=True)
-    type = fields.Selection(PHONE_TYPES, 'Type', required=True)
+    type = fields.Selection(PHONE_TYPES, 'Type',
+    						default='mobile', required=True)
     name = fields.Char('Number', required=True)

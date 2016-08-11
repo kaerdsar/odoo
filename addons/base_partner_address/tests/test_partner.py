@@ -60,7 +60,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         res_partner.create({
             'name': 'Company',
             'is_company': True,
-            'child_address_ids': [(0, 0, {
+            'partner_address_ids': [(0, 0, {
                 'type': 'business',
                 'street': 'Test Street',
                 'zip': 10500,
@@ -129,7 +129,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         res_partner = self.env['res.partner']
         partner_merge_1 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [(0, 0, {
+            'partner_address_ids': [(0, 0, {
                 'type': 'private',
                 'city': 'Private City 1',
                 'preferred': True
@@ -142,7 +142,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         })
         partner_merge_2 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [
+            'partner_address_ids': [
                 (0, 0, {
                     'type': 'private',
                     'city': 'Private City 2',
@@ -176,9 +176,9 @@ class TestPartner(openerp.tests.common.TransactionCase):
         self.assertEqual(len(partner), 1)
         self.assertEqual(partner.id, partner_merge_1.id)
         self.assertEqual(len(partner.partner_email_ids), 1)
-        self.assertEqual(len(partner.child_address_ids), 2)
+        self.assertEqual(len(partner.partner_address_ids), 2)
         self.assertEqual(len(partner.partner_phone_ids), 0)
-        for a in partner.child_address_ids:
+        for a in partner.partner_address_ids:
             if a.type == 'private':
                 self.assertEqual(a.city, 'Private City 1')
                 self.assertTrue(a.preferred)
@@ -197,7 +197,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         res_partner = self.env['res.partner']
         partner_merge_1 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [(0, 0, {
+            'partner_address_ids': [(0, 0, {
                 'type': 'business',
                 'city': 'Business City 1',
                 'preferred': True
@@ -210,7 +210,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         })
         partner_merge_2 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [
+            'partner_address_ids': [
                 (0, 0, {
                     'type': 'private',
                     'city': 'Private City 2',
@@ -241,8 +241,8 @@ class TestPartner(openerp.tests.common.TransactionCase):
         self.assertEqual(len(partner), 1)
         self.assertEqual(partner.id, partner_merge_1.id)
         self.assertEqual(len(partner.partner_email_ids), 1)
-        self.assertEqual(len(partner.child_address_ids), 2)
-        for a in partner.child_address_ids:
+        self.assertEqual(len(partner.partner_address_ids), 2)
+        for a in partner.partner_address_ids:
             if a.type == 'private':
                 self.assertEqual(a.city, 'Private City 2')
                 self.assertFalse(a.preferred)
@@ -261,7 +261,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         res_partner = self.env['res.partner']
         partner_merge_1 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [
+            'partner_address_ids': [
                 (0, 0, {
                     'type': 'private',
                     'city': 'Private City 1',
@@ -281,7 +281,7 @@ class TestPartner(openerp.tests.common.TransactionCase):
         })
         partner_merge_2 = res_partner.create({
             'name': 'Partner Merge 1',
-            'child_address_ids': [
+            'partner_address_ids': [
                 (0, 0, {
                     'type': 'private',
                     'city': 'Private City 2',
@@ -312,8 +312,8 @@ class TestPartner(openerp.tests.common.TransactionCase):
         self.assertEqual(len(partner), 1)
         self.assertEqual(partner.id, partner_merge_1.id)
         self.assertEqual(len(partner.partner_email_ids), 1)
-        self.assertEqual(len(partner.child_address_ids), 2)
-        for a in partner.child_address_ids:
+        self.assertEqual(len(partner.partner_address_ids), 2)
+        for a in partner.partner_address_ids:
             if a.type == 'private':
                 self.assertEqual(a.city, 'Private City 1')
                 self.assertTrue(a.preferred)

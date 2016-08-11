@@ -36,7 +36,8 @@ class ResPartnerEmail(models.Model):
     name = fields.Char('Email', required=True)
     partner_id = fields.Many2one('res.partner', 'Partner', required=True,
                                  ondelete='cascade', index=True)
-    type = fields.Selection(EMAIL_ADDRESS_TYPES, 'Type', required=True)
+    type = fields.Selection(EMAIL_ADDRESS_TYPES, 'Type',
+                            default='private', required=True)
     preferred = fields.Boolean('Preferred')
 
     _sql_constraints = [

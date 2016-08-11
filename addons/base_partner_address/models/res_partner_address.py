@@ -165,7 +165,7 @@ class ResPartnerAddress(models.Model):
         res = super(ResPartnerAddress, self).unlink()
 
         for partner in update_partner_address:
-            if len(partner.child_address_ids) == 0:
+            if len(partner.partner_address_ids) == 0:
                 partner.write({
                     'preferred_address': False,
                 })
