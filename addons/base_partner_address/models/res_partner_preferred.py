@@ -22,8 +22,8 @@ from openerp import _, api, fields, models
 from openerp.exceptions import ValidationError
 
 
-class ResPartnerContactInfo(models.AbstractModel):
-    _name = 'res.partner.contact.info'
+class ResPartnerPreferred(models.AbstractModel):
+    _name = 'res.partner.preferred'
 
     def get_contact_type(self):
         return self._name.split('.')[-1]
@@ -32,10 +32,10 @@ class ResPartnerContactInfo(models.AbstractModel):
     def create(self, vals):
         """Update preferred for related partner in addition."""
         if vals.get('preferred', False) and vals.get('partner_id', False):
-            self.clean_preferred(vals['partner_id'])
-        rec = super(ResPartnerContactInfo, self).create(vals)
+            self.clean_preferred_flag(vals['partner_id'])
+        rec = super(ResPartnerPreferred, self).create(vals)
         if rec.preferred:
-            rec.set_partner_preferred(rec.partner_id)
+            rec.set_preferred_contact(rec.partner_id)
         return rec
 
     @api.multi
@@ -43,11 +43,11 @@ class ResPartnerContactInfo(models.AbstractModel):
         """Update preferred for related partner in addition."""
         if vals.get('preferred', False):
             for rec in self:
-                self.clean_preferred(rec.partner_id.id)
-        res = super(ResPartnerContactInfo, self).write(vals)
+                self.clean_preferred_flag(rec.partner_id.id)
+        res = super(ResPartnerPreferred, self).write(vals)
         for rec in self:
             if rec.preferred:
-                rec.set_partner_preferred(rec.partner_id)
+                rec.set_preferred_contact(rec.partner_id)
         return res
 
     @api.multi
@@ -56,7 +56,7 @@ class ResPartnerContactInfo(models.AbstractModel):
         partners = []
         for rec in self:
             partners.append(rec.partner_id)
-        res = super(ResPartnerContactInfo, self).unlink()
+        res = super(ResPartnerPreferred, self).unlink()
 
         contact_type = self.get_contact_type()
         field_ids = 'partner_%s_ids' % contact_type
@@ -71,7 +71,7 @@ class ResPartnerContactInfo(models.AbstractModel):
                 partner.write(values)
         return res
 
-    def clean_preferred(self, partner_id):
+    def clean_preferred_flag(self, partner_id):
         """Set preferred flag for all partner to False."""
         contacts = self.search(
             [('preferred', '=', True),
@@ -80,7 +80,7 @@ class ResPartnerContactInfo(models.AbstractModel):
             contacts.write({'preferred': False})
         return True
 
-    def set_partner_preferred(self, partner):
+    def set_preferred_contact(self, partner):
         """Set preferred for given partner."""
         contact_type = self.get_contact_type()
         field = 'preferred_%s' % contact_type

@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import simplejson
 from openerp import _, api, fields, models
 
 ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
@@ -27,7 +26,7 @@ ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
 class ResPartnerAddress(models.Model):
     _name = 'res.partner.address'
     _rec_name = 'partner_id'
-    _inherit = ['res.partner.contact.info']
+    _inherit = ['res.partner.preferred']
 
     type = fields.Selection([
         ('private', 'Private'),

@@ -29,7 +29,7 @@ EMAIL_ADDRESS_TYPES = [
 
 class ResPartnerEmail(models.Model):
     _name = 'res.partner.email'
-    _inherit = ['res.partner.contact.info']
+    _inherit = ['res.partner.preferred']
 
     name = fields.Char('Email', required=True)
     type = fields.Selection(EMAIL_ADDRESS_TYPES, 'Type',

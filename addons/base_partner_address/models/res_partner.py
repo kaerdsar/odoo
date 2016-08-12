@@ -134,7 +134,7 @@ class ResPartner(models.Model):
             vals['lang'] = 'de_DE'
         for field in CONTACTS:
             field_ids = 'partner_%s_ids' % field
-            if len(vals.get(field_ids, 0)) == 1:
+            if len(vals.get(field_ids, [])) == 1:
                 vals[field_ids][0][2]['preferred'] = True
         return super(ResPartner, self).create(vals)
 
@@ -266,11 +266,11 @@ class ResPartner(models.Model):
         return result
 
     def clean_preferred(self, contact_type):
-        if contact not in CONTACTS:
+        if contact_type not in CONTACTS:
             raise ValidationError(
                 _('Contact type not allowed for partners.'))
         model = self.env['res.partner.%s' % contact_type]
-        preferred_contact = models.search([
+        preferred_contact = model.search([
             ('preferred', '=', True),
             ('partner_id', '=', self.id)
         ])
@@ -278,9 +278,10 @@ class ResPartner(models.Model):
             preferred_contact.write({'preferred': False})
 
     def set_preferred(self, contact_type, contact_sub_type, contact_info):
-        if contact not in CONTACTS:
+        if contact_type not in CONTACTS:
             raise ValidationError(
                 _('Contact type not allowed for partners.'))
+        model = self.env['res.partner.%s' % contact_type]
         self.clean_preferred(contact_type)
         domain = [
             ('name', '=', contact_info),

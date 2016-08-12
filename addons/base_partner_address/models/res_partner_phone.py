@@ -30,7 +30,7 @@ PHONE_TYPES = [
 
 class ResPartnerPhone(models.Model):
     _name = 'res.partner.phone'
-    _inherit = ['res.partner.contact.info']
+    _inherit = ['res.partner.preferred']
 
     name = fields.Char('Number', required=True)
     type = fields.Selection(PHONE_TYPES, 'Type',

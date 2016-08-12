@@ -30,6 +30,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/assets.xml',
         'views/res_partner_address.xml',
         'views/res_partner.xml',
     ],
