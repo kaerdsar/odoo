@@ -75,6 +75,7 @@ msgstr "Land"
 
 #. module: base_partner_address
 #: field:res.partner.email,name:0
+#: view:res.partner:base_partner_address.view_partner_form
 msgid "Email"
 msgstr "E-Mail"
 
@@ -280,6 +281,7 @@ msgstr "Nummer"
 #. module: base_partner_address
 #: field:res.partner.address,phone:0
 #: selection:res.partner.phone,type:0
+#: view:res.partner:base_partner_address.view_partner_form
 msgid "Phone"
 msgstr "Telefon"
 
@@ -297,13 +299,11 @@ msgstr "Fax"
 
 #. module: base_partner_address
 #: field:res.partner,partner_phone_ids:0
-#: view:res.partner:base_partner_address.view_partner_form
 msgid "Phones"
 msgstr "Telefonnummern"
 
 #. module: base_partner_address
 #: field:res.partner,partner_email_ids:0
-#: view:res.partner:base_partner_address.view_partner_form
 msgid "Email Addresses"
 msgstr "E-Mail Adressen"
 

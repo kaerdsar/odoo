@@ -1,43 +1,42 @@
 @charset "UTF8";
-partner_address_table [dataid="type"] {
-   width: 12%;
- }
- 
- .partner_address_table [dataid="street"] {
-   width: 18%;
- }
- 
- .partner_address_table [dataid="street2"],
- .partner_address_table [dataid="zip"] {
-   width: 12%;
- }
- 
- .partner_address_table [dataid="city"],
- .partner_address_table [dataid="state_id"],
- .partner_address_table [dataid="country_id"] {
-   width: 12%;
- }
- 
- .partner_address_table [dataid="preferred"] {
-   width: 10%;
- }
- 
- .partner_email_table [dataid="type"] {
-   width: 25%;
- }
- 
- .partner_email_table [dataid="name"] {
-   width: 65%;
- }
- 
- .partner_email_table [dataid="preferred"] {
-   width: 10%;
- }
- 
- .partner_phone_table [dataid="type"] {
-   width: 25%;
- }
- 
- .partner_phone_table [dataid="name"] {
-   width: 75%;
- } 
+.partner_address_table [data-id="type"] {
+  width: 12%;
+}
+
+.partner_address_table [data-id="street"] {
+  width: 18%;
+}
+
+.partner_address_table [data-id="street2"],
+.partner_address_table [data-id="zip"] {
+  width: 12%;
+}
+
+.partner_address_table [data-id="city"],
+.partner_address_table [data-id="state_id"],
+.partner_address_table [data-id="country_id"] {
+  width: 12%;
+}
+
+.partner_email_table [data-id="type"] {
+  width: 25%;
+}
+
+.partner_email_table [data-id="name"] {
+  width: 70%;
+}
+
+.partner_phone_table [data-id="type"] {
+  width: 25%;
+}
+
+.partner_phone_table [data-id="name"] {
+  width: 70%;
+}
+
+.partner_address_table [data-id="preferred"],
+.partner_address_table [data-id="use_company_address"],
+.partner_email_table [data-id="preferred"],
+.partner_phone_table [data-id="preferred"] {
+  width: 5%;
+} 

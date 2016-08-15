@@ -21,6 +21,9 @@
 from openerp import _, api, fields, models
 
 ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
+ADDRESS_TYPES = [('default', 'Default'), ('invoice', 'Invoice'),
+                 ('delivery', 'Shipping'), ('contact', 'Contact'),
+                 ('other', 'Other')]
 
 
 class ResPartnerAddress(models.Model):
@@ -28,11 +31,8 @@ class ResPartnerAddress(models.Model):
     _rec_name = 'partner_id'
     _inherit = ['res.partner.preferred']
 
-    type = fields.Selection([
-        ('private', 'Private'),
-        ('business', 'Business'),
-        ('other', 'Other')], 'Address Type',
-        default='private', required=True)
+    type = fields.Selection(ADDRESS_TYPES, 'Address Type', default='default',
+                            required=True)
     street = fields.Char('Street')
     street2 = fields.Char('Street2')
     zip = fields.Char('Zip')
@@ -42,9 +42,10 @@ class ResPartnerAddress(models.Model):
     country_id = fields.Many2one('res.country', 'Country', ondelete='restrict')
     use_company_address = fields.Boolean('Use Company Address')
     display_name = fields.Char(compute='_get_display_name', string='Name',
-                                store=True)
+                               store=True)
     partner_id = fields.Many2one('res.partner', 'Partner', required=True,
                                  ondelete='cascade', index=True)
+    partner_is_company = fields.Boolean(related='partner_id.is_company')
     preferred = fields.Boolean('Preferred')
 
     @api.depends('partner_id', 'type')
@@ -55,39 +56,23 @@ class ResPartnerAddress(models.Model):
 
     @api.onchange('use_company_address')
     def onchange_use_company_address(self):
-        return {}
+        if self.use_company_address and self.partner_id and \
+                self.partner_id.parent_id:
+            address = self.search(
+                [('type', '=', self.type),
+                 ('partner_id', '=', self.partner_id.parent_id.id)])
+            if address:
+                self.street = address.street
+                self.street2 = address.street2
+                self.zip = address.zip
+                self.city = address.city
+                self.state_id = address.state_id
+                self.country_id = address.country_id
 
     @api.onchange('state_id')
     def onchange_state_id(self):
-        return {}
-
-    @api.onchange('type')
-    def onchange_type(self):
-        """Trigger the default values for the business address."""
-        for rec in self:
-            if rec.type == 'business' and rec.partner_id and \
-                    rec.partner_id.parent_id:
-                address = rec.search(
-                    [('type', '=', rec.type),
-                     ('partner_id', '=', rec.partner_id.parent_id.id)])
-                if address:
-                    rec.street = address.street
-                    rec.street2 = address.street2
-                    rec.zip = address.zip
-                    rec.city = address.city
-                    rec.state_id = address.state_id
-                    rec.country_id = address.country_id
-
-    @api.model
-    def default_get(self, fields):
-        """Set default values for partner addresses."""
-        res = super(ResPartnerAddress, self).default_get(fields)
-
-        # set default country for addresses, it won't work with the normal
-        # default handling because of the new address handling
-        res['country_id'] = self.env.ref('base.de').id
-
-        return res
+        if self.state_id:
+            self.country_id = self.state_id.country_id.id
 
     def _name_get(self):
         """Add address type and company name to display address name."""
@@ -112,7 +97,6 @@ class ResPartnerAddress(models.Model):
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
-        """Copy from account.invoice."""
         args = args or []
         recs = self.browse()
         if name:
@@ -144,30 +128,13 @@ class ResPartnerAddress(models.Model):
             cr, user, new_args, offset=offset, limit=limit, order=order,
             context=context, count=count)
 
-    @api.multi
-    def open_address(self):
-        """Open the partner address modal in partner detail views."""
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Address'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': self._name,
-            'res_id': self[0].id,
-            'target': 'current',
-        }
-
-    @api.multi
-    def address_parent(self):
-        """The Id of the parent."""
-        if self.partner_id:
-            return self.partner_id.id
-        return False
-
     def _address_fields(self, cr, uid, context=None):
-        """Adapt from openerp/addons/base/res/res_partner.py.
-
-        Returns the list of address fields that are synced from the parent
-        when the `use_parent_address` flag is set.
-        """
+        """Return list of address."""
         return list(ADDRESS_FIELDS)
+
+    def is_empty(self):
+        """Check if address has no address data."""
+        if not self.street and not self.street2 and not self.zip and \
+                not self.city and not self.state_id and not self.country_id:
+            return True
+        return False

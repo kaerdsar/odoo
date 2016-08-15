@@ -265,6 +265,14 @@ class ResPartner(models.Model):
             return result
         return result
 
+    def _address_fields(self, cr, uid, context=None):
+        """Return empty partner address list.
+
+        We only use address data in res.partner.address we don't use address
+        data in res.partner anymore.
+        """
+        return []
+
     def clean_preferred(self, contact_type):
         if contact_type not in CONTACTS:
             raise ValidationError(
