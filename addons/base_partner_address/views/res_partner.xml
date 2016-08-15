@@ -27,6 +27,7 @@
             <group>
               <field name="partner_address_ids" mode="tree" nolabel="1" class="address_tree">
                 <tree editable="top" nolabel="1" class="partner_address_table">
+                  <field name="partner_is_company" invisible="1"/>
                   <field name="type" string="Addresses"/>
                   <field name="street" placeholder="Street" string=""/>
                   <field name="street2" placeholder="Street2" string=""/>
@@ -34,25 +35,24 @@
                   <field name="city" placeholder="City" string=""/>
                   <field name="state_id" placeholder="State" string=""/>
                   <field name="country_id" placeholder="Country" string=""/>
-                  <field name="preferred"/>
+                  <field name="preferred" string="" help="If you tick a checkbox in one line this address is used as preferred address. Only one line can be used as preferred address."/>
+                  <field name="use_company_address" string="" attrs="{'invisible': [('partner_is_company', '=', True)]}" help="If you tick the checkbox and if the related partner is linked with a company with address data of the same type the line uses the company address data."/>
                 </tree>
               </field>
             </group>
             <group>
               <field name="partner_email_ids" mode="tree" nolabel="1" class="email_tree">
                 <tree editable="top" nolabel="1" class="partner_email_table">
-                  <field name="type" string="Emails"/>
+                  <field name="type" string="Email"/>
                   <field name="name" widget="email" string=""/>
-                  <field name="preferred"/>
+                  <field name="preferred" string="" help="If you tick a checkbox in one line this email is used as preferred email. Only one line can be used as preferred email."/>
                 </tree>
               </field>
-            </group>
-            <group>
               <field name="partner_phone_ids" mode="tree" nolabel="1" class="phone_tree">
                 <tree editable="top" nolabel="1" class="partner_phone_table">
-                  <field name="type" string="Phones"/>
+                  <field name="type" string="Phone"/>
                   <field name="name" string=""/>
-                  <field name="preferred"/>
+                  <field name="preferred" string="" help="If you tick a checkbox in one line this phone is used as preferred phone. Only one line can be used as preferred phone."/>
                 </tree>
               </field>
             </group>
