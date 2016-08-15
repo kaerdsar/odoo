@@ -23,12 +23,6 @@ from openerp.exceptions import ValidationError
 
 CONTACTS = ['address', 'email', 'phone']
 
-ADDRESS_TYPES = [
-    ('private', 'Private'),
-    ('business', 'Business'),
-    ('other', 'Other'),
-]
-
 
 class ResPartner(models.Model):
     """Partner updates like new address handling, default values etc."""
@@ -130,8 +124,6 @@ class ResPartner(models.Model):
         if vals.get('is_company', False):
             vals['ref'] = self.env['ir.sequence'].\
                 next_by_code('res.partner') or '-'
-        if not vals.get('lang', False):
-            vals['lang'] = 'de_DE'
         for field in CONTACTS:
             field_ids = 'partner_%s_ids' % field
             if len(vals.get(field_ids, [])) == 1:
