@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf8"?>
 <openerp>
-  <data>
-
-    <template id="assets_backend" inherit_id="web.assets_backend" name="Assets Backend" priority="900">
-      <xpath expr="." position="inside">
-        <link rel="stylesheet" href="/base_partner_address/static/src/css/base.css"/>
-        <script type="text/javascript" src="/base_partner_address/static/src/js/address.js"></script>
-      </xpath>
-    </template>
-
-  </data>
-</openerp>
+   <data>
+ 
+     <template id="assets_backend" inherit_id="web.assets_backend" name="Assets Backend" priority="900">
+       <xpath expr="." position="inside">
+         <link rel="stylesheet" href="/base_partner_address/static/src/css/base.css"/>
+       </xpath>
+     </template>
+ 
+   </data>
+ </openerp>

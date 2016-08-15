@@ -21,6 +21,8 @@
 from openerp import _, api, fields, models
 from openerp.exceptions import ValidationError
 
+CONTACTS = ['address', 'email', 'phone']
+
 ADDRESS_TYPES = [
     ('private', 'Private'),
     ('business', 'Business'),
@@ -29,9 +31,7 @@ ADDRESS_TYPES = [
 
 
 class ResPartner(models.Model):
-
     """Partner updates like new address handling, default values etc."""
-
     _inherit = 'res.partner'
 
     website = fields.Char('Website', size=128,
@@ -42,14 +42,16 @@ class ResPartner(models.Model):
          ('address', 'Address')], 'Address Type',
         help="Used to select automatically the right address according to the"
              "context in sales and purchases documents.")
-    child_address_ids = fields.One2many(
-        'res.partner.address', 'partner_id', 'Addresses')
-    # force "active_test" domain to bypass _search() override
-
+    
     preferred_address = fields.Many2one('res.partner.address', 'Preferred Address')
+    partner_address_ids = fields.One2many('res.partner.address', 'partner_id',
+                                          'Addresses')
+    
     preferred_email = fields.Many2one('res.partner.email', 'Preferred Email')
     partner_email_ids = fields.One2many('res.partner.email', 'partner_id',
-                                        'Email Addresses')
+                                        'Emails')
+    
+    preferred_phone = fields.Many2one('res.partner.phone', 'Preferred Phone')
     partner_phone_ids = fields.One2many('res.partner.phone', 'partner_id',
                                         'Phones')
 
@@ -59,7 +61,7 @@ class ResPartner(models.Model):
         rpa_obj = self.env['res.partner.address']
         # it is possible that self._uid is None, especially after a server
         # restart, we would get an error like "AccessError: ('No value found
-        # for res.partner(21,).child_address_ids', None)" without sudo()
+        # for res.partner(21,).partner_address_ids', None)" without sudo()
         address = rpa_obj.sudo().search(
             [('partner_id', '=', self.id), ('type', '=', addr_type)],
             order='id ASC', limit=1)
@@ -82,7 +84,7 @@ class ResPartner(models.Model):
             domain.append(('type', '=', phone_type))
         # it is possible that self._uid is None, especially after a server
         # restart, we would get an error like "AccessError: ('No value found
-        # for res.partner(21,).child_address_ids', None)" without sudo()
+        # for res.partner(21,).partner_address_ids', None)" without sudo()
         phone = self.env['res.partner.phone'].sudo().search(
             domain, order='id ASC', limit=1)
 
@@ -122,7 +124,6 @@ class ResPartner(models.Model):
     @api.model
     def create(self, vals):
         """Overwrite module: base.
-
         Adds computed partner sequence to partner (only for company partners).
         Set address flag if needed.
         """
@@ -131,18 +132,37 @@ class ResPartner(models.Model):
                 next_by_code('res.partner') or '-'
         if not vals.get('lang', False):
             vals['lang'] = 'de_DE'
+        for field in CONTACTS:
+            field_ids = 'partner_%s_ids' % field
+            if len(vals.get(field_ids, [])) == 1:
+                vals[field_ids][0][2]['preferred'] = True
+        return super(ResPartner, self).create(vals)
 
-        rec = super(ResPartner, self).create(vals)
+    @api.multi
+    def write(self, vals):
+        res = super(ResPartner, self).write(vals)
+        fields_to_update = []
+        for field in CONTACTS:
+            field_ids = 'partner_%s_ids' % field
+            if field_ids in vals:
+                fields_to_update.append(field_ids)
+        if fields_to_update:
+            for rec in self:
+                for f in fields_to_update:
+                    contacts = getattr(rec, f)
+                    if len(contacts) == 1 and not contacts.preferred:
+                        contacts.write({'preferred': True})
+        return res
 
-        return rec
-
-    @api.model
+    @api.multi
     def unlink(self):
-        """Remove all addresses if partner contact will be removed."""
+        """Remove all contact information if partner will be removed."""
         for partner in self:
-            if partner.child_address_ids:
-                partner.child_address_ids.unlink()
-
+            for field in CONTACTS:
+                field_ids = 'partner_%s_ids' % field
+                contacts = getattr(partner, field_ids)
+                if contacts:
+                    contacts.unlink()
         return super(ResPartner, self).unlink()
 
     @api.multi
@@ -215,40 +235,17 @@ class ResPartner(models.Model):
 
         return ''
 
-    @api.constrains('child_address_ids')
+    @api.constrains('partner_address_ids')
     def _check_partner_address(self):
-        """Check if partner contact has at least one address.
-
-        In addition check if partner has exactly one address ticked as
+        """In addition check if partner has exactly one address ticked as
         preferred address.
         """
-        if not self.child_address_ids:
-            raise ValidationError(
-                _('You cannot create a contact without an address.'))
-
-        addresses = self.env['res.partner.address'].search(
-            [('partner_id', '=', self.id), ('preferred', '=', True)])
-
-        if len(addresses) != 1:
+        if self.partner_address_ids \
+                and len(self.partner_address_ids) > 1 \
+                and not self.partner_address_ids.filtered('preferred'):
             raise ValidationError(
                 _('You have to tick exact one address as preferred '
                   'address.'))
-
-    @api.constrains('partner_email_ids')
-    def _check_partner_email_address(self):
-        """Check for preferred email address in partner contact.
-
-        The check should only be done if there is at least one email address.
-        Means email addresses are not required for a partner contract.
-        """
-        preferred_emails = 0
-        for email in self.partner_email_ids:
-            if email.preferred:
-                preferred_emails += 1
-        if len(self.partner_email_ids) > 0 and preferred_emails != 1:
-            raise ValidationError(
-                _('You have to tick exact one email address as preferred email'
-                  ' address.'))
 
     @api.multi
     def address_get_all(self, adr_pref=None):
@@ -268,57 +265,49 @@ class ResPartner(models.Model):
             return result
         return result
 
-    def set_preferred_email(self, email_address, email_type=False):
-        """Set preferred email of current partner.
+    def clean_preferred(self, contact_type):
+        if contact_type not in CONTACTS:
+            raise ValidationError(
+                _('Contact type not allowed for partners.'))
+        model = self.env['res.partner.%s' % contact_type]
+        preferred_contact = model.search([
+            ('preferred', '=', True),
+            ('partner_id', '=', self.id)
+        ])
+        if preferred_contact:
+            preferred_contact.write({'preferred': False})
 
-        If a record with email already exists this record will be marked as
-        preferred email. If no record with email exists a new record will be
-        created and marked as preferred email.
-        """
-        param_email_type = email_type
-        if not email_type:
-            email_type = 'private'
-
-        rpe_obj = self.env['res.partner.email']
-        emails = rpe_obj.search([('preferred', '=', True),
-                                 ('partner_id', '=', self.id)])
-        if emails:
-            emails.write({'preferred': False})
-
-        email = rpe_obj.search([('name', '=', email_address)], limit=1)
-        if email:
-            values = {'preferred': True}
-            if param_email_type:
-                values.update({'type': param_email_type})
-            email.write(values)
+    def set_preferred(self, contact_type, contact_sub_type, contact_info):
+        if contact_type not in CONTACTS:
+            raise ValidationError(
+                _('Contact type not allowed for partners.'))
+        model = self.env['res.partner.%s' % contact_type]
+        self.clean_preferred(contact_type)
+        domain = [
+            ('name', '=', contact_info),
+            ('type', '=', contact_sub_type),
+            ('partner_id', '=', self.id)
+        ]
+        contact = model.search(domain, limit=1)
+        if contact:
+            contact.write({'preferred': True})
         else:
-            email = rpe_obj.create({
-                'name': email_address,
-                'partner_id': self.id,
-                'type': email_type,
-                'preferred': True,
-            })
-        return email
-
-    def get_preferred_email_label(self):
-        """Return preferred email type label."""
-        email = self.preferred_email
-        if email and email.type:
-            return dict(email.fields_get(allfields=['type'])
-                        ['type']['selection'])[email.type]
-        return False
+            values = {x[0]: x[2] for x in domain}.update({'preferred': True})
+            contact = model.create(values)
+        return contact
 
     def search(self, cr, user, args, offset=0, limit=None, order=None, context=None, count=False):
         """ Search for address fields in contact information related to res.partner.address,
          res.partner.email and res.partner.phone instead of the fields int the current model. """
         address_fields = ['street', 'street2', 'zip', 'city']
+        email_fields = ['email']
         phone_fields = ['phone', 'fax', 'mobile']
         for arg in args:
             if isinstance(arg, list) and arg[0] in address_fields:
                 arg[0] = 'preferred_address.%s' % arg[0]
-            elif isinstance(arg, list) and arg[0] == 'email':
+            elif isinstance(arg, list) and arg[0] in email_fields:
                 arg[0] = 'preferred_email.name'
             elif isinstance(arg, list) and arg[0] in phone_fields:
-                arg[0] = 'partner_phone_ids.name'
+                arg[0] = 'preferred_phone.name'
         return super(ResPartner, self).search(cr, user, args, offset=offset, limit=limit,
                                               order=order, context=context, count=count)

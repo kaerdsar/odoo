@@ -18,19 +18,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import simplejson
 from openerp import _, api, fields, models
 
 ADDRESS_FIELDS = ('street', 'street2', 'zip', 'city', 'state_id', 'country_id')
 
 
 class ResPartnerAddress(models.Model):
-
     _name = 'res.partner.address'
     _rec_name = 'partner_id'
+    _inherit = ['res.partner.preferred']
 
-    partner_id = fields.Many2one('res.partner', 'Partner', required=True,
-                                 ondelete='cascade', index=True)
     type = fields.Selection([
         ('private', 'Private'),
         ('business', 'Business'),
@@ -44,49 +41,11 @@ class ResPartnerAddress(models.Model):
                                ondelete='restrict')
     country_id = fields.Many2one('res.country', 'Country', ondelete='restrict')
     use_company_address = fields.Boolean('Use Company Address')
-    address = fields.Char(compute='_get_json_address',
-                          inverse='_set_json_address', string='Address')
     display_name = fields.Char(compute='_get_display_name', string='Name',
-                               store=True)
+                                store=True)
+    partner_id = fields.Many2one('res.partner', 'Partner', required=True,
+                                 ondelete='cascade', index=True)
     preferred = fields.Boolean('Preferred')
-
-    @api.depends('street', 'street2', 'zip', 'city', 'country_id')
-    def _get_json_address(self):
-        for rec in self:
-            country = rec.country_id or self.env.ref('base.de')
-            address = {
-                'street': rec.street or '',
-                'street2': rec.street2 or '',
-                'zip': rec.zip or '',
-                'city': rec.city or '',
-                'country_id': [country.id, country.name]
-            }
-            rec.address = simplejson.dumps(address)
-
-    def _set_json_address(self):
-        for rec in self:
-            values = {
-                'street': False,
-                'street2': False,
-                'zip': False,
-                'city': False,
-                'country_id': False
-            }
-            if rec.address:
-                address = simplejson.loads(rec.address)
-                values['street'] = address['street']
-                values['street2'] = address['street2']
-                values['zip'] = address['zip']
-                values['city'] = address['city']
-                if address['country_id']:
-                    try:
-                        if isinstance(address['country_id'], list):
-                            values['country_id'] = int(address['country_id'][0])
-                        else:
-                            values['country_id'] = int(address['country_id'])
-                    except ValueError:
-                        values['country_id'] = False
-            rec.write(values)
 
     @api.depends('partner_id', 'type')
     def _get_display_name(self):
@@ -118,7 +77,6 @@ class ResPartnerAddress(models.Model):
                     rec.city = address.city
                     rec.state_id = address.state_id
                     rec.country_id = address.country_id
-                    rec._get_json_address()
 
     @api.model
     def default_get(self, fields):
@@ -128,47 +86,6 @@ class ResPartnerAddress(models.Model):
         # set default country for addresses, it won't work with the normal
         # default handling because of the new address handling
         res['country_id'] = self.env.ref('base.de').id
-
-        return res
-
-    @api.model
-    def create(self, vals):
-        """Update preferred address for related partner in addition."""
-        if vals.get('preferred', False) and vals.get('partner_id', False):
-            self.clean_preferred_addresses(vals['partner_id'])
-
-        rec = super(ResPartnerAddress, self).create(vals)
-        if rec.preferred:
-            rec.set_partner_preferred_address(rec.partner_id)
-
-        return rec
-
-    @api.multi
-    def write(self, vals):
-        """Update preferred address for related partner in addition."""
-        if vals.get('preferred', False):
-            for rec in self:
-                self.clean_preferred_addresses(rec.partner_id.id)
-        res = super(ResPartnerAddress, self).write(vals)
-        for rec in self:
-            if rec.preferred:
-                rec.set_partner_preferred_address(rec.partner_id)
-
-        return res
-
-    @api.multi
-    def unlink(self):
-        """In addition clean preferred address data in partner."""
-        update_partner_address = []
-        for rec in self:
-            update_partner_address.append(rec.partner_id)
-        res = super(ResPartnerAddress, self).unlink()
-
-        for partner in update_partner_address:
-            if len(partner.child_address_ids) == 0:
-                partner.write({
-                    'preferred_address': False,
-                })
 
         return res
 
@@ -226,24 +143,6 @@ class ResPartnerAddress(models.Model):
         return super(ResPartnerAddress, self).search(
             cr, user, new_args, offset=offset, limit=limit, order=order,
             context=context, count=count)
-
-    def clean_preferred_addresses(self, partner_id):
-        """Set preferred flag for all partner addresses to false."""
-        addresses = self.search(
-            [('preferred', '=', True),
-             ('partner_id', '=', partner_id)])
-        if addresses:
-            addresses.write({'preferred': False})
-
-        return True
-
-    def set_partner_preferred_address(self, partner):
-        """Set preferred address for given partner."""
-        partner.write({
-            'preferred_address': self.id,
-        })
-
-        return True
 
     @api.multi
     def open_address(self):

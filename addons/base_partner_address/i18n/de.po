@@ -47,7 +47,7 @@ msgstr "Adresse"
 #: view:res.partner:base_partner_address.view_partner_form
 #: view:res.partner:base_partner_address.view_partner_simple_form
 #: view:res.partner:base_partner_address.view_res_partner_filter
-#: field:res.partner,child_address_ids:0
+#: field:res.partner,partner_address_ids:0
 msgid "Contact Information"
 msgstr "Kontakt Informationen"
 
@@ -261,7 +261,7 @@ msgstr "Land"
 #: model:ir.ui.menu,name:base_partner_address.menu_partner_address_form
 #: view:res.partner:base_partner_address.view_partner_form
 #: view:res.partner:base_partner_address.view_partner_simple_form
-#: field:res.partner,child_address_ids:0
+#: field:res.partner,partner_address_ids:0
 #: view:res.partner.address:base_partner_address.view_partner_address_form
 #: view:res.partner.address:base_partner_address.view_partner_address_tree
 msgid "Addresses"

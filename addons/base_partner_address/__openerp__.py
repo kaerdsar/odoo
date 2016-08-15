@@ -34,7 +34,4 @@
         'views/res_partner_address.xml',
         'views/res_partner.xml',
     ],
-    'qweb': [
-        'static/src/xml/address.xml'
-    ],
 }

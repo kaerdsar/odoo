@@ -25,7 +25,7 @@
         <page string="Contacts" position="before">
           <page string="Contact Information" autofocus="autofocus" version="7.0">
             <group>
-              <field name="child_address_ids" mode="tree" nolabel="1" class="address_tree">
+              <field name="partner_address_ids" mode="tree" nolabel="1" class="address_tree">
                 <tree editable="top" nolabel="1" class="partner_address_table">
                   <field name="type" string="Addresses"/>
                   <field name="street" placeholder="Street" string=""/>
@@ -41,15 +41,18 @@
             <group>
               <field name="partner_email_ids" mode="tree" nolabel="1" class="email_tree">
                 <tree editable="top" nolabel="1" class="partner_email_table">
-                  <field name="type" string="Email Addresses"/>
+                  <field name="type" string="Emails"/>
                   <field name="name" widget="email" string=""/>
                   <field name="preferred"/>
                 </tree>
               </field>
+            </group>
+            <group>
               <field name="partner_phone_ids" mode="tree" nolabel="1" class="phone_tree">
                 <tree editable="top" nolabel="1" class="partner_phone_table">
                   <field name="type" string="Phones"/>
                   <field name="name" string=""/>
+                  <field name="preferred"/>
                 </tree>
               </field>
             </group>
@@ -78,7 +81,7 @@
               <group>
                 <field name="partner_email_ids" mode="tree" nolabel="1">
                   <tree editable="top" nolabel="1" class="partner_email_table">
-                    <field name="type" string="Email Addresses"/>
+                    <field name="type" string="Emails"/>
                     <field name="name" widget="email" string=""/>
                     <field name="preferred"/>
                   </tree>
@@ -96,9 +99,9 @@
       <field name="inherit_id" ref="base.view_res_partner_filter"/>
       <field name="arch" type="xml">
         <field name="name" position="after">
-          <field name="street" string="Street" filter_domain="[('child_address_ids.street','=like', self + '%')]"/>
-          <field name="zip" string="ZIP" filter_domain="[('child_address_ids.zip','=like', self + '%')]"/>
-          <field name="city" string="City" filter_domain="[('child_address_ids.city','=like', self + '%')]"/>
+          <field name="street" string="Street" filter_domain="[('partner_address_ids.street','=like', self + '%')]"/>
+          <field name="zip" string="ZIP" filter_domain="[('partner_address_ids.zip','=like', self + '%')]"/>
+          <field name="city" string="City" filter_domain="[('partner_address_ids.city','=like', self + '%')]"/>
         </field>
       </field>
     </record>

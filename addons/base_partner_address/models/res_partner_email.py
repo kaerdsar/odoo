@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import fields, models, api
+from openerp import fields, models
 
 EMAIL_ADDRESS_TYPES = [
     ('private', 'Private'),
@@ -28,68 +28,17 @@ EMAIL_ADDRESS_TYPES = [
 
 
 class ResPartnerEmail(models.Model):
-
-    """Add model for new partner email handling."""
-
     _name = 'res.partner.email'
+    _inherit = ['res.partner.preferred']
 
     name = fields.Char('Email', required=True)
+    type = fields.Selection(EMAIL_ADDRESS_TYPES, 'Type',
+                            default='private', required=True)
     partner_id = fields.Many2one('res.partner', 'Partner', required=True,
                                  ondelete='cascade', index=True)
-    type = fields.Selection(EMAIL_ADDRESS_TYPES, 'Type', required=True)
     preferred = fields.Boolean('Preferred')
 
     _sql_constraints = [
         ('name_uniq', 'unique(name)',
          'The email must be unique in the system!')
     ]
-
-    @api.model
-    def create(self, vals):
-        """Update preferred email for related partner in addition."""
-        if vals.get('name', False):
-            name = vals.get('name', False)
-            vals.update({'name': name.lower()})
-        rec = super(ResPartnerEmail, self).create(vals)
-        if rec.preferred:
-            rec.set_partner_preferred_email(rec.partner_id, rec.name)
-        return rec
-
-    @api.multi
-    def write(self, vals):
-        """Update preferred email for related partner in addition."""
-        if vals.get('name', False):
-            name = vals.get('name', False)
-            vals.update({'name': name.lower()})
-        res = super(ResPartnerEmail, self).write(vals)
-        for rec in self:
-            if vals.get('preferred', False) or (vals.get('name', False) and
-                                                rec.preferred):
-                rec.set_partner_preferred_email(rec.partner_id, rec.name)
-        return res
-
-    @api.multi
-    def unlink(self):
-        """In addition clean preferred email data in partner."""
-        update_partner_email = []
-        for rec in self:
-            update_partner_email.append(rec.partner_id)
-        res = super(ResPartnerEmail, self).unlink()
-
-        for partner in update_partner_email:
-            if len(partner.partner_email_ids) == 0:
-                partner.write({
-                    'preferred_email': False,
-                    'email': '',
-                })
-
-        return res
-
-    def set_partner_preferred_email(self, partner, email_address):
-        """Set preferred email address for given partner."""
-        partner.write({
-            'preferred_email': self.id,
-            'email': email_address,
-        })
-
-        return True
