@@ -20,72 +20,152 @@
 ##############################################################################
 from openerp import api, models
 
-ADDRESS_FIELDS = ['street', 'street2', 'zip', 'city', 'state_id', 'country_id']
-EMAIL_FIELDS = ['email']
-PHONE_FIELDS = ['phone', 'fax', 'mobile']
-
 
 class BasePartnerAddressMigration(models.TransientModel):
     _name = 'base.partner.address.migration'
 
-    def build_domain(self, contact_fields):
-    	domain = []
-    	for field in contact_fields:
-    		if len(domain) != 0:
-    			domain.insert(0, '|')
-    		domain.append((field, '!=', False))
-    	return domain
-
-    def build_values(self, partner, contact_fields):
-    	values = {'preferred': True}
-    	for field in contact_fields:
-    		if field.endswith('_id'):
-    			obj = getattr(partner, field)
-    			values[field] = obj and obj.id or False
-    		else:
-    			values[field] = getattr(partner, field)
-    	return values
-
     @api.model
     def migrate_contact_information(self):
-    	partner_obj = self.env['res.partner']
+        self.env.cr.execute("""
+CREATE OR REPLACE
+    FUNCTION migrate_contact_information() RETURNS VOID AS $$
+DECLARE
+    query_part TEXT;
+    part RECORD;
+    last_id INTEGER;
+BEGIN
+    query_part := 'SELECT id, name, street, street2, zip,
+                          city, state_id, country_id,
+                          email, phone, fax, mobile
+                   FROM res_partner';
+    FOR part IN EXECUTE query_part
+    LOOP
+        -- Address
+        IF (part.street IS NOT NULL)
+            OR (part.street2 IS NOT NULL)
+            OR (part.zip IS NOT NULL)
+            OR (part.city IS NOT NULL)
+            OR (part.state_id IS NOT NULL)
+            OR (part.country_id IS NOT NULL) THEN
+            INSERT INTO res_partner_address (
+                create_uid,
+                write_uid,
+                partner_id,
+                type,
+                street,
+                street2,
+                zip,
+                city,
+                state_id,
+                country_id,
+                preferred
+            ) VALUES (
+                1,
+                1,
+                part.id,
+                'default',
+                part.street,
+                part.street2,
+                part.zip,
+                part.city,
+                part.state_id,
+                part.country_id,
+                True
+            ) RETURNING id INTO last_id;
+            UPDATE res_partner
+            SET preferred_address=last_id, street=NULL, street2=NULL,
+                zip=NULL, city=NULL, state_id=NULL, country_id=NULL
+            WHERE id=part.id;
+        END IF;
 
-    	addres_obj = self.env['res.partner.address']
-    	domain = self.build_domain(ADDRESS_FIELDS)
-    	for partner in partner_obj.search(domain):
-    		values = self.build_values(partner, ADDRESS_FIELDS)
-    		address = addres_obj.search([('partner_id', '=', partner.id)])
-    		if address:
-    			address.write(values)
-    		else:
-    			values.update({'partner_id': partner.id})
-    			address = addres_obj.create(values)
+        -- Email
+        IF (part.email IS NOT NULL) THEN
+            INSERT INTO res_partner_email (
+                create_uid,
+                write_uid,
+                partner_id,
+                type,
+                name,
+                preferred
+            ) VALUES (
+                1,
+                1,
+                part.id,
+                'private',
+                part.email,
+                True
+            ) RETURNING id INTO last_id;
+            UPDATE res_partner
+            SET preferred_email=last_id
+            WHERE id=part.id;
+        END IF;
 
-    	email_obj = self.env['res.partner.email']
-    	domain = self.build_domain(EMAIL_FIELDS)
-    	for partner in partner_obj.search(domain):
-    		values = {'name': partner.email, 'preferred': True}
-    		email = email_obj.search([('partner_id', '=', partner.id)])
-    		if email:
-    			email.write(values)
-    		else:
-    			values.update({'partner_id': partner.id})
-    			email = email_obj.create(values)
+        -- Phone
+        IF (part.phone IS NOT NULL) THEN
+            INSERT INTO res_partner_phone (
+                create_uid,
+                write_uid,
+                partner_id,
+                type,
+                name,
+                preferred
+            ) VALUES (
+                1,
+                1,
+                part.id,
+                'phone',
+                part.phone,
+                True
+            ) RETURNING id INTO last_id;
+            UPDATE res_partner
+            SET preferred_phone=last_id, phone=NULL
+            WHERE id=part.id;
+        END IF;
 
-    	phone_obj = self.env['res.partner.phone']
-    	domain = self.build_domain(PHONE_FIELDS)
-    	for partner in partner_obj.search(domain):
-    		for field in PHONE_FIELDS:
-    			if getattr(partner, field):
-		    		values = {'name': getattr(partner, field), 'type': field}
-		    		if field == 'phone':
-		    			values['preferred'] = True
-		    		phone = phone_obj.search([
-		    			('partner_id', '=', partner.id),
-		    			('type', '=', field)
-		    		])
-		    		if phone:
-		    			phone.write(values)
-		    		else:
-		    			values.update({'partner_id': partner.id})
-		    			phone = phone_obj.create(values)
+        -- Mobile
+        IF (part.mobile IS NOT NULL) THEN
+            INSERT INTO res_partner_phone (
+                create_uid,
+                write_uid,
+                partner_id,
+                type,
+                name
+            ) VALUES (
+                1,
+                1,
+                part.id,
+                'mobile',
+                part.mobile
+            ) RETURNING id INTO last_id;
+            UPDATE res_partner
+            SET preferred_phone=last_id, mobile=NULL
+            WHERE id=part.id;
+        END IF;
+
+        -- Fax
+        IF (part.fax IS NOT NULL) THEN
+            INSERT INTO res_partner_phone (
+                create_uid,
+                write_uid,
+                partner_id,
+                type,
+                name
+            ) VALUES (
+                1,
+                1,
+                part.id,
+                'fax',
+                part.fax
+            ) RETURNING id INTO last_id;
+            UPDATE res_partner
+            SET preferred_phone=last_id, fax=NULL
+            WHERE id=part.id;
+        END IF;
+
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT migrate_contact_information();
+DROP FUNCTION IF EXISTS migrate_contact_information();
+        """)
