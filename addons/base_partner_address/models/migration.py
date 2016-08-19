@@ -26,6 +26,10 @@ class BasePartnerAddressMigration(models.TransientModel):
 
     @api.model
     def migrate_contact_information(self):
+        """ This method uses PL/PgSQL language instead of normal
+        ORM methods to improve the performance of the migration
+        for huge databases. 
+        """
         self.env.cr.execute("""
 CREATE OR REPLACE
     FUNCTION migrate_contact_information() RETURNS VOID AS $$
